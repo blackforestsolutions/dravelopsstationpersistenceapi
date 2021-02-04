@@ -5,7 +5,9 @@ import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
 import de.blackforestsolutions.dravelopsstationimporter.exceptionhandling.ExceptionHandlerService;
 import de.blackforestsolutions.dravelopsstationimporter.service.repositoryservice.TravelPointRepositoryService;
 import de.blackforestsolutions.dravelopsstationimporter.service.supportservice.UuidService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -14,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+@Slf4j
 @Service
 public class TravelPointApiServiceImpl implements TravelPointApiService {
 
@@ -33,12 +36,18 @@ public class TravelPointApiServiceImpl implements TravelPointApiService {
     }
 
     @Override
+    @Scheduled(fixedRateString = "${gtfs.update.period.milliseconds}")
     public void updateTravelPoints() {
-        gtfsApiService.getAllTravelPointsBy(gtfsApiTokens)
-                .flatMap(exceptionHandlerService::handleExceptions)
-                .filter(distinctEquivalentTravelPoints())
-                .collectMap(travelPoint -> uuidService.createUUID(), travelPoint -> travelPoint)
-                .subscribe(travelPointRepositoryService::replaceAllTravelPoints);
+        try {
+            log.info("Starting to download gtfs...");
+            gtfsApiService.getAllTravelPointsBy(gtfsApiTokens)
+                    .flatMap(exceptionHandlerService::handleExceptions)
+                    .filter(distinctEquivalentTravelPoints())
+                    .collectMap(travelPoint -> uuidService.createUUID(), travelPoint -> travelPoint)
+                    .subscribe(travelPointRepositoryService::replaceAllTravelPoints);
+        } catch (Exception e) {
+            exceptionHandlerService.handleExceptions(e);
+        }
     }
 
     @Override
