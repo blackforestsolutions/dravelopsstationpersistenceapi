@@ -55,4 +55,28 @@ class TravelPointApiServiceIT {
                 .expectNextCount(5L)
                 .verifyComplete();
     }
+
+    @Test
+    void test_getAllTravelPoints_returns_all_travelPoints_correctly_mapped() {
+        IMap<UUID, TravelPoint> hazelcastTravelPoints = hazelcastInstance.getMap(TRAVEL_POINT_MAP);
+        hazelcastTravelPoints.put(TEST_UUID_1, getFurtwangenBirkeTravelPoint());
+        hazelcastTravelPoints.put(TEST_UUID_2, getBadDuerkheimTravelPoint());
+        hazelcastTravelPoints.put(TEST_UUID_3, getNeckarauTrainStationTravelPoint());
+        hazelcastTravelPoints.put(TEST_UUID_4, getKarlsbaderStreetTravelPoint());
+        hazelcastTravelPoints.put(TEST_UUID_5, getTribergStationStreetTravelPoint());
+
+        Flux<TravelPoint> result = classUnderTest.getAllTravelPoints();
+
+        StepVerifier.create(result)
+                .expectNextCount(1L)
+                .thenConsumeWhile(travelPoint -> {
+                    assertThat(travelPoint.getName()).isNotEmpty();
+                    assertThat(travelPoint.getPoint()).isNotNull();
+                    assertThat(travelPoint.getArrivalTime()).isNull();
+                    assertThat(travelPoint.getDepartureTime()).isNull();
+                    assertThat(travelPoint.getPlatform()).isNotNull();
+                    return true;
+                })
+                .verifyComplete();
+    }
 }
