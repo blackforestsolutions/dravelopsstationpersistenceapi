@@ -11,8 +11,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +35,12 @@ public class GtfsApiServiceImpl implements GtfsApiService {
                 .flatMap(this::executeApiCall);
     }
 
+    /**
+     * This call is non reactive as it handles files. We only use here a flux to have an unique syntax
+     *
+     * @param apiToken with information where to download the gtfs file
+     * @return travelPoints extracted from stops.txt
+     */
     private Flux<CallStatus<TravelPoint>> executeApiCall(ApiToken apiToken) {
         try {
             URL url = buildUrlWith(apiToken);

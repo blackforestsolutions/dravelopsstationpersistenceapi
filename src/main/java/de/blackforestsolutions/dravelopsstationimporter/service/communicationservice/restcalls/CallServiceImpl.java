@@ -1,7 +1,6 @@
 package de.blackforestsolutions.dravelopsstationimporter.service.communicationservice.restcalls;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
@@ -25,8 +24,8 @@ public class CallServiceImpl implements CallService {
 
     private final RestTemplate restTemplate;
 
-    public CallServiceImpl(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build();
+    public CallServiceImpl(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     @Override

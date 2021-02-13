@@ -60,4 +60,14 @@
         <Class name="~.*\.*Test"/>
     </Match>
 
+    <!--
+       The method "distinctEquivalentTravelPoints" distinct travelPoints with the same name, platforms and coordinates
+       FE_FLOATING_POINT_EQUALITY warning indicates an overflow error for a double.
+       This warning is suppressed as we dont want a tolerance here
+    -->
+    <Match>
+        <Class name="de.blackforestsolutions.dravelopsstationimporter.service.communicationservice.TravelPointApiServiceImpl"/>
+        <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
+    </Match>
+
 </FindBugsFilter>
