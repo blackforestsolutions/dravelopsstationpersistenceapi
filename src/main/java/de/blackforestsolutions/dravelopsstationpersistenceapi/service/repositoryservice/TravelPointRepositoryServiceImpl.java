@@ -37,10 +37,10 @@ public class TravelPointRepositoryServiceImpl implements TravelPointRepositorySe
         IMap<UUID, TravelPoint> hazelcastTravelPoints = hazelcastInstance.getMap(TRAVEL_POINT_MAP);
 
         hazelcastTravelPoints.clear();
-        log.info("All TravelPoints are successfully removed from database.");
+        log.info("All TravelPoints are removed from database.");
 
         hazelcastTravelPoints.putAll(travelPoints);
-        log.info(hazelcastTravelPoints.size() + " TravelPoints are successfully imported to database.");
+        log.info(hazelcastTravelPoints.size() + " TravelPoints are imported to database.");
 
         return travelPoints.values();
     }

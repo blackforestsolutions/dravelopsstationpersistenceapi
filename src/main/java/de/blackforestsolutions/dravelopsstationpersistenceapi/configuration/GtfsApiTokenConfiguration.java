@@ -11,7 +11,7 @@ import java.util.Map;
 @Setter
 @Getter
 @Component
-@ConfigurationProperties(prefix = "files")
+@ConfigurationProperties(prefix = "gtfs")
 public class GtfsApiTokenConfiguration {
 
     private List<ApiToken> apitokens;
@@ -20,9 +20,7 @@ public class GtfsApiTokenConfiguration {
     @Getter
     public static class ApiToken {
 
-        private String protocol;
-        private String host;
-        private String path;
+        private String gtfsUrl;
         private Map<String, String> headers;
     }
 

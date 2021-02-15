@@ -24,9 +24,7 @@ public class TestUtils {
 
     private static GtfsApiTokenConfiguration.ApiToken convertApiTokenToConfigToken(ApiToken apiToken) {
         GtfsApiTokenConfiguration.ApiToken configToken = new GtfsApiTokenConfiguration.ApiToken();
-        configToken.setProtocol(apiToken.getProtocol());
-        configToken.setHost(apiToken.getHost());
-        configToken.setPath(apiToken.getPath());
+        configToken.setGtfsUrl(apiToken.getGtfsUrl());
         configToken.setHeaders(apiToken.getHeaders());
         return configToken;
     }

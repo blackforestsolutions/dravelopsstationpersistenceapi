@@ -11,13 +11,11 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
-import static de.blackforestsolutions.dravelopsdatamodel.util.DravelOpsHttpCallBuilder.buildUrlWith;
 
 @Service
 public class GtfsApiServiceImpl implements GtfsApiService {
@@ -43,8 +41,7 @@ public class GtfsApiServiceImpl implements GtfsApiService {
      */
     private Flux<CallStatus<TravelPoint>> executeApiCall(ApiToken apiToken) {
         try {
-            URL url = buildUrlWith(apiToken);
-            File gtfsZip = callService.getFile(url.toString(), convertApiTokenHeadersMap(apiToken));
+            File gtfsZip = callService.getFile(apiToken.getGtfsUrl(), convertApiTokenHeadersMap(apiToken));
 
             return Flux.fromIterable(extractStopsFrom(gtfsZip))
                     .map(this::handleTravelPointMapping)

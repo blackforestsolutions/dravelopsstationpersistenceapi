@@ -12,11 +12,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static de.blackforestsolutions.dravelopsstationpersistenceapi.utils.TravelPointUtils.distinctEquivalentTravelPoints;
 
 @Slf4j
 @Service
@@ -72,30 +73,8 @@ public class TravelPointApiServiceImpl implements TravelPointApiService {
 
     private ApiToken convertConfigTokenToApiToken(GtfsApiTokenConfiguration.ApiToken apiToken) {
         return new ApiToken.ApiTokenBuilder()
-                .setProtocol(apiToken.getProtocol())
-                .setHost(apiToken.getHost())
-                .setPath(apiToken.getPath())
-                .setHeaders(apiToken.getHeaders())
+                .setGtfsUrl(apiToken.getGtfsUrl())
+                .setHeaders(Optional.ofNullable(apiToken.getHeaders()).orElse(new HashMap<>()))
                 .build();
-    }
-
-    /**
-     * This method distinct travelPoints with the same name, platforms and coordinates
-     * FE_FLOATING_POINT_EQUALITY warning indicates an overflow error for a double.
-     * This warning is suppressed as we dont want a tolerance here
-     *
-     * @return Predicate to distinct equal TravelPoints
-     */
-    private static Predicate<TravelPoint> distinctEquivalentTravelPoints() {
-        Set<TravelPoint> savedTravelPoints = ConcurrentHashMap.newKeySet();
-        return t -> {
-            for (TravelPoint savedTravelPoint : savedTravelPoints) {
-
-                if (savedTravelPoint.getName().equals(t.getName()) && savedTravelPoint.getPoint().getX() == t.getPoint().getX() && savedTravelPoint.getPoint().getY() == t.getPoint().getY() && savedTravelPoint.getPlatform().equals(t.getPlatform())) {
-                    return false;
-                }
-            }
-            return savedTravelPoints.add(t);
-        };
     }
 }
