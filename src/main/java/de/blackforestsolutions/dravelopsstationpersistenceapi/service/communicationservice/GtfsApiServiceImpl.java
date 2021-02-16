@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -41,8 +42,9 @@ public class GtfsApiServiceImpl implements GtfsApiService {
      */
     private Flux<CallStatus<TravelPoint>> executeApiCall(ApiToken apiToken) {
         try {
+            Objects.requireNonNull(apiToken.getGtfsUrl(), "gtfsUrl is not allowed to be null");
+            Objects.requireNonNull(apiToken.getHeaders(), "headers is not allowed to be null");
             File gtfsZip = callService.getFile(apiToken.getGtfsUrl(), convertApiTokenHeadersMap(apiToken));
-
             return Flux.fromIterable(extractStopsFrom(gtfsZip))
                     .map(this::handleTravelPointMapping)
                     .onErrorResume(e -> Mono.just(new CallStatus<>(null, Status.FAILED, e)));
