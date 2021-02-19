@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.blackforestsolutions</groupId>
-    <artifactId>dravelopsstationimporter</artifactId>
+    <artifactId>dravelopsstationpersistenceapi</artifactId>
     <version>0.0.0</version>
 
     <parent>
@@ -14,17 +14,25 @@
         <version>2.3.2.RELEASE</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>public.onebusaway.org</id>
+            <url>https://repo.camsys-apps.com/releases/</url>
+        </repository>
+    </repositories>
+
     <properties>
         <java.version>11</java.version>
         <apache.lang-version>2.6</apache.lang-version>
         <lombok.version>1.18.8</lombok.version>
-        <google.maps.services>0.15.0</google.maps.services>
-        <blackforestsolutions.dravelopsdatamodel.version>5.1.1</blackforestsolutions.dravelopsdatamodel.version>
-        <blackforestsolutions.dravelopsgeneratedcontent.version>0.4.1</blackforestsolutions.dravelopsgeneratedcontent.version>
+        <hazelcast.version>4.1.1</hazelcast.version>
+        <onebusway.gtfs.version>1.3.88</onebusway.gtfs.version>
+        <blackforestsolutions.dravelopsdatamodel.version>6.0.1</blackforestsolutions.dravelopsdatamodel.version>
+        <blackforestsolutions.dravelopsgeneratedcontent.version>0.5.3</blackforestsolutions.dravelopsgeneratedcontent.version>
         <!-- Maven test Dependencies -->
         <assertj.version>3.9.0</assertj.version>
         <mockito.version>3.2.0</mockito.version>
-        <blockhound.version>1.0.4.RELEASE</blockhound.version>
+        <awaitility.version>3.1.6</awaitility.version>
         <!-- Maven build plugins -->
         <maven.dockerfile.plugin.version>1.3.7</maven.dockerfile.plugin.version>
         <maven.jacoco.plugin.version>0.8.4</maven.jacoco.plugin.version>
@@ -62,6 +70,16 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-all</artifactId>
+            <version>${hazelcast.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.onebusaway</groupId>
+            <artifactId>onebusaway-gtfs</artifactId>
+            <version>${onebusway.gtfs.version}</version>
         </dependency>
         <dependency>
             <groupId>de.blackforestsolutions</groupId>
@@ -105,10 +123,17 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.projectreactor.tools</groupId>
-            <artifactId>blockhound-junit-platform</artifactId>
-            <version>${blockhound.version}</version>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <scope>test</scope>
+            <version>${hazelcast.version}</version>
+            <classifier>tests</classifier>
         </dependency>
         <dependency>
             <groupId>de.blackforestsolutions</groupId>
@@ -214,8 +239,8 @@
                         <configuration>
                             <excludes>
                                 <!-- configuration exclude -->
-                                <exclude>**/*de/blackforestsolutions/dravelopsstationimporter/configuration/*</exclude>
-                                <exclude>**/*de/blackforestsolutions/dravelopsstationimporter/Application.class</exclude>
+                                <exclude>**/*de/blackforestsolutions/dravelopsstationpersistenceapi/configuration/*</exclude>
+                                <exclude>**/*de/blackforestsolutions/dravelopsstationpersistenceapi/Application.class</exclude>
                             </excludes>
                             <rules>
                                 <rule>
@@ -257,7 +282,7 @@
                 <configuration>
                     <junitArtifactName>junit:junit</junitArtifactName>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <argLine>-Xms256m -Xmx512m -XX:MaxPermSize=128m -ea
+                    <argLine>-Xms256m -Xmx1G -XX:MaxPermSize=512m -ea
                         -Dfile.encoding=UTF-8
                     </argLine>
                 </configuration>

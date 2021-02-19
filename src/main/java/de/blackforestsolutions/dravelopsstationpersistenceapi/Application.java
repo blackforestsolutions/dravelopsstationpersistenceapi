@@ -1,4 +1,4 @@
-package de.blackforestsolutions.dravelopsstationimporter;
+package de.blackforestsolutions.dravelopsstationpersistenceapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
