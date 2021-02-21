@@ -1,5 +1,6 @@
 package de.blackforestsolutions.dravelopsstationpersistenceapi.service.repositoryservice;
 
+import de.blackforestsolutions.dravelopsdatamodel.Point;
 import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
 
 import java.util.Collection;
@@ -10,4 +11,6 @@ public interface TravelPointRepositoryService {
     Collection<TravelPoint> getAllTravelPoints();
 
     Collection<TravelPoint> replaceAllTravelPoints(Map<UUID, TravelPoint> travelPoints);
+
+    Collection<Point> getAllTravelPointCoordinates();
 }

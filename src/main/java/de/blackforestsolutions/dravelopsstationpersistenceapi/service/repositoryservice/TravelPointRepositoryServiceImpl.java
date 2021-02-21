@@ -2,6 +2,7 @@ package de.blackforestsolutions.dravelopsstationpersistenceapi.service.repositor
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import de.blackforestsolutions.dravelopsdatamodel.Point;
 import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,12 @@ public class TravelPointRepositoryServiceImpl implements TravelPointRepositorySe
     public Collection<TravelPoint> getAllTravelPoints() {
         IMap<UUID, TravelPoint> hazelcastTravelPoints = hazelcastInstance.getMap(TRAVEL_POINT_MAP);
         return hazelcastTravelPoints.values();
+    }
+
+    @Override
+    public Collection<Point> getAllTravelPointCoordinates() {
+        IMap<UUID, TravelPoint> hazelcastTravelPoints = hazelcastInstance.getMap(TRAVEL_POINT_MAP);
+        return hazelcastTravelPoints.project(travelPointEntry -> travelPointEntry.getValue().getPoint());
     }
 
     @Override
