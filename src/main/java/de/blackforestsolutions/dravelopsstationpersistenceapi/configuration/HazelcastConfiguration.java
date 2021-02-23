@@ -4,6 +4,7 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
 import de.blackforestsolutions.dravelopsdatamodel.Point;
 import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
+import de.blackforestsolutions.dravelopsstationpersistenceapi.service.repositoryservice.projection.PointProjection;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +30,9 @@ public class HazelcastConfiguration {
 
     private ClientUserCodeDeploymentConfig userCodeDeploymentConfig() {
         ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
-
+        // projections
+        clientUserCodeDeploymentConfig.addClass(PointProjection.class);
+        // datamodel
         clientUserCodeDeploymentConfig.addClass(TravelPoint.class);
         clientUserCodeDeploymentConfig.addClass(TravelPoint.TravelPointBuilder.class);
         clientUserCodeDeploymentConfig.addClass(Point.class);

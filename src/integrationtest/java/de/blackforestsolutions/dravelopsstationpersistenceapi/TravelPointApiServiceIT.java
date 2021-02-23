@@ -5,6 +5,7 @@ import com.hazelcast.map.IMap;
 import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
 import de.blackforestsolutions.dravelopsstationpersistenceapi.service.communicationservice.TravelPointApiService;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,5 +79,11 @@ class TravelPointApiServiceIT {
                     return true;
                 })
                 .verifyComplete();
+    }
+
+    @AfterEach
+    void tearDown() {
+        IMap<UUID, TravelPoint> hazelcastTravelPoints = hazelcastInstance.getMap(TRAVEL_POINT_MAP);
+        hazelcastTravelPoints.clear();
     }
 }
