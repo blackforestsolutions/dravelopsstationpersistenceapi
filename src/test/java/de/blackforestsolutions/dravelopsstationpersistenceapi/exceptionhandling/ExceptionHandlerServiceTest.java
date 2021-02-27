@@ -4,6 +4,7 @@ import de.blackforestsolutions.dravelopsdatamodel.CallStatus;
 import de.blackforestsolutions.dravelopsdatamodel.Status;
 import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -15,13 +16,57 @@ class ExceptionHandlerServiceTest {
     private final ExceptionHandlerService classUnderTest = new ExceptionHandlerServiceImpl();
 
     @Test
+    void test_handleExceptions_with_an_exception_returns_empty_mono() {
+        Exception testData = new Exception();
+
+        Flux<TravelPoint> result = classUnderTest.handleExceptions(testData);
+
+        StepVerifier.create(result)
+                .expectNextCount(0L)
+                .verifyComplete();
+    }
+
+    @Test
+    void test_handleExceptions_with_exception_as_null_returns_empty_flux() {
+        Exception testData = null;
+
+        Flux<TravelPoint> result = classUnderTest.handleExceptions(testData);
+
+        StepVerifier.create(result)
+                .expectNextCount(0L)
+                .verifyComplete();
+    }
+
+    @Test
+    void test_handleException_with_an_exception_returns_empty_mono() {
+        Exception testData = new Exception();
+
+        Mono<TravelPoint> result = classUnderTest.handleException(testData);
+
+        StepVerifier.create(result)
+                .expectNextCount(0L)
+                .verifyComplete();
+    }
+
+    @Test
+    void test_handleException_with_exception_as_null_returns_empty_mono() {
+        Exception testData = null;
+
+        Flux<TravelPoint> result = classUnderTest.handleExceptions(testData);
+
+        StepVerifier.create(result)
+                .expectNextCount(0L)
+                .verifyComplete();
+    }
+
+    @Test
     void test_handleExceptions_with_calledObject_as_null_status_as_null_exception_as_null_returns_emptyMono() {
         CallStatus<TravelPoint> testData = new CallStatus<>(null, null, null);
 
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -32,7 +77,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -43,7 +88,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -54,7 +99,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -65,7 +110,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -76,7 +121,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .assertNext(TravelPoint -> assertThat(TravelPoint).isEqualToComparingFieldByFieldRecursively(getTravelPointWithNoEmptyFields()))
+                .assertNext(travelPoint -> assertThat(travelPoint).isEqualToComparingFieldByFieldRecursively(getTravelPointWithNoEmptyFields()))
                 .verifyComplete();
     }
 
@@ -87,7 +132,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -98,7 +143,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -109,7 +154,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -120,7 +165,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -131,7 +176,7 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 
@@ -142,7 +187,18 @@ class ExceptionHandlerServiceTest {
         Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(0)
+                .expectNextCount(0L)
+                .verifyComplete();
+    }
+
+    @Test
+    void test_handleExceptions_with_callStatus_as_null_returns_empty_mono() {
+        CallStatus<TravelPoint> testData = null;
+
+        Mono<TravelPoint> result = classUnderTest.handleExceptions(testData);
+
+        StepVerifier.create(result)
+                .expectNextCount(0L)
                 .verifyComplete();
     }
 }
