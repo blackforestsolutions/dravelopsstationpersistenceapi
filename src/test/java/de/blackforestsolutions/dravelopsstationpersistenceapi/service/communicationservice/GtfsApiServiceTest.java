@@ -39,7 +39,7 @@ class GtfsApiServiceTest {
     }
 
     @Test
-    void test_getAllTravelPointsBy_rnvApiToken_and_sbgApiToken_returns_maps_all_travelPoints_correctly() {
+    void test_getAllTravelPointsBy_rnvApiToken_and_sbgApiToken_maps_all_travelPoints_correctly() {
         List<ApiToken> testData = List.of(
                 getRnvGtfsApiToken(),
                 getSbgGtfsApiToken()

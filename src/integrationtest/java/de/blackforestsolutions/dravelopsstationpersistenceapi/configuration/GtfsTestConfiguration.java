@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 public class GtfsTestConfiguration {
 
     @Bean
-    @ConfigurationProperties(prefix = "files.apitokens[0]")
+    @ConfigurationProperties(prefix = "gtfs.apitokens[0]")
     public ApiToken.ApiTokenBuilder gtfsApiTokenIT() {
         return new ApiToken.ApiTokenBuilder();
     }
