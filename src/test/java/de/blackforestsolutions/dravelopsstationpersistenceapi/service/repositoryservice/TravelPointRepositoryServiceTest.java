@@ -4,13 +4,14 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import de.blackforestsolutions.dravelopsdatamodel.Point;
 import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -44,19 +45,19 @@ class TravelPointRepositoryServiceTest {
         hazelcastTravelPoints.put(TEST_UUID_3, getBadDuerkheimTravelPoint());
         hazelcastTravelPoints.put(TEST_UUID_4, getNeckarauTrainStationTravelPoint());
 
-        Collection<TravelPoint> result = classUnderTest.getAllTravelPoints();
+        List<TravelPoint> result = classUnderTest.getAllTravelPoints();
 
         assertThat(result.size()).isEqualTo(4);
-        assertThat(new ArrayList<>(result).get(0)).isEqualToComparingFieldByFieldRecursively(getBadDuerkheimTravelPoint());
-        assertThat(new ArrayList<>(result).get(1)).isEqualToComparingFieldByFieldRecursively(getFurtwangenBirkeTravelPoint());
-        assertThat(new ArrayList<>(result).get(2)).isEqualToComparingFieldByFieldRecursively(getTribergStationStreetTravelPoint());
-        assertThat(new ArrayList<>(result).get(3)).isEqualToComparingFieldByFieldRecursively(getNeckarauTrainStationTravelPoint());
+        assertThat(result.get(0)).isEqualToComparingFieldByFieldRecursively(getBadDuerkheimTravelPoint());
+        assertThat(result.get(1)).isEqualToComparingFieldByFieldRecursively(getFurtwangenBirkeTravelPoint());
+        assertThat(result.get(2)).isEqualToComparingFieldByFieldRecursively(getTribergStationStreetTravelPoint());
+        assertThat(result.get(3)).isEqualToComparingFieldByFieldRecursively(getNeckarauTrainStationTravelPoint());
     }
 
     @Test
     void test_getAllTravelPoints_with_zero_travelPoints() {
 
-        Collection<TravelPoint> result = classUnderTest.getAllTravelPoints();
+        List<TravelPoint> result = classUnderTest.getAllTravelPoints();
 
         assertThat(result.size()).isEqualTo(0);
     }
@@ -88,7 +89,7 @@ class TravelPointRepositoryServiceTest {
         hazelcastTravelPoints.put(TEST_UUID_1, getFurtwangenBirkeTravelPoint());
         hazelcastTravelPoints.put(TEST_UUID_2, getTribergStationStreetTravelPoint());
 
-        Collection<TravelPoint> result = classUnderTest.replaceAllTravelPoints(newHazelcastTravelPoints);
+        List<TravelPoint> result = classUnderTest.replaceAllTravelPoints(newHazelcastTravelPoints);
 
         assertThat(result.size()).isEqualTo(2);
     }
@@ -106,6 +107,38 @@ class TravelPointRepositoryServiceTest {
         assertThat(hazelcastTravelPoints.size()).isEqualTo(2);
         assertThat(hazelcastTravelPoints.get(TEST_UUID_3)).isEqualToComparingFieldByFieldRecursively(getBadDuerkheimTravelPoint());
         assertThat(hazelcastTravelPoints.get(TEST_UUID_4)).isEqualToComparingFieldByFieldRecursively(getNeckarauTrainStationTravelPoint());
+    }
+
+    @Test
+    void test_getAllTravelPointCoordinates_returns_all_inserted_points() {
+        IMap<UUID, TravelPoint> testData = hazelcastMock.getMap(TRAVEL_POINT_MAP);
+        testData.put(TEST_UUID_1, getTravelPointWithNoEmptyFieldsBy(new Point.PointBuilder(0.0d, 0.0d).build()));
+        testData.put(TEST_UUID_2, getTravelPointWithNoEmptyFieldsBy(new Point.PointBuilder(0.0d, 10.0d).build()));
+        testData.put(TEST_UUID_3, getTravelPointWithNoEmptyFieldsBy(new Point.PointBuilder(10.0d, 10.0d).build()));
+        testData.put(TEST_UUID_4, getTravelPointWithNoEmptyFieldsBy(new Point.PointBuilder(10.0d, 0.0d).build()));
+        testData.put(TEST_UUID_5, getTravelPointWithNoEmptyFieldsBy(new Point.PointBuilder(0.0d, 0.0d).build()));
+
+        List<Point> result = classUnderTest.getAllTravelPointCoordinates();
+
+        assertThat(result.size()).isEqualTo(5);
+        assertThat(result).extracting(
+                Point::getX,
+                Point::getY
+        ).containsExactlyInAnyOrder(
+                Tuple.tuple(0.0d, 0.0d),
+                Tuple.tuple(0.0d, 10.0d),
+                Tuple.tuple(10.0d, 10.0d),
+                Tuple.tuple(10.0d, 0.0d),
+                Tuple.tuple(0.0d, 0.0d)
+        );
+    }
+
+    @Test
+    void test_getAllTravelPointCoordinates_with_zero_travelPoints() {
+
+        List<Point> result = classUnderTest.getAllTravelPointCoordinates();
+
+        assertThat(result.size()).isEqualTo(0);
     }
 
 }

@@ -13,7 +13,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static de.blackforestsolutions.dravelopsdatamodel.testutil.TestUtils.*;
-import static de.blackforestsolutions.dravelopsdatamodel.util.DravelOpsHttpCallBuilder.buildUrlWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Import(GtfsTestConfiguration.class)
@@ -30,7 +29,7 @@ class GtfsCallServiceIT {
     void test_download_gtfs_file() {
         ApiToken testData = gtfsApiTokenIT.build();
 
-        File result = classUnderTest.getFile(buildUrlWith(testData).toString(), convertToHeaders(testData.getHeaders()));
+        File result = classUnderTest.getFile(testData.getGtfsUrl(), convertToHeaders(testData.getHeaders()));
 
         assertThat(hasZipFileExtension(result)).isTrue();
         assertThat(convertToZipFile(result)).isInstanceOf(ZipFile.class);
