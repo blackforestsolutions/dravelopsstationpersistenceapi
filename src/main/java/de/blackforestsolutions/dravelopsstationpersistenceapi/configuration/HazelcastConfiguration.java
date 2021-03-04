@@ -8,6 +8,11 @@ import de.blackforestsolutions.dravelopsstationpersistenceapi.service.repository
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Range;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metric;
+import org.springframework.data.geo.Metrics;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -30,6 +35,12 @@ public class HazelcastConfiguration {
 
     private ClientUserCodeDeploymentConfig userCodeDeploymentConfig() {
         ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
+        // spring geo
+        clientUserCodeDeploymentConfig.addClass(Distance.class);
+        clientUserCodeDeploymentConfig.addClass(Metric.class);
+        clientUserCodeDeploymentConfig.addClass(Range.class);
+        clientUserCodeDeploymentConfig.addClass(Metrics.class);
+        clientUserCodeDeploymentConfig.addClass(Assert.class);
         // projections
         clientUserCodeDeploymentConfig.addClass(PointProjection.class);
         // datamodel
