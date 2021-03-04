@@ -76,6 +76,7 @@ class TravelPointApiServiceIT {
                     assertThat(travelPoint.getArrivalTime()).isNull();
                     assertThat(travelPoint.getDepartureTime()).isNull();
                     assertThat(travelPoint.getPlatform()).isNotNull();
+                    assertThat(travelPoint.getDistanceInKilometers()).isNull();
                     return true;
                 })
                 .verifyComplete();
