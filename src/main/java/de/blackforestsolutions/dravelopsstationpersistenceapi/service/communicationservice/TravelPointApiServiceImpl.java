@@ -23,6 +23,8 @@ import static de.blackforestsolutions.dravelopsstationpersistenceapi.utils.Trave
 @Service
 public class TravelPointApiServiceImpl implements TravelPointApiService {
 
+    private static final double WRONG_COORDINATE = 0.0d;
+
     private final GtfsApiService gtfsApiService;
     private final TravelPointRepositoryService travelPointRepositoryService;
     private final ExceptionHandlerService exceptionHandlerService;
@@ -46,6 +48,7 @@ public class TravelPointApiServiceImpl implements TravelPointApiService {
             List<ApiToken> gtfsApiTokens = getApiTokens();
             gtfsApiService.getAllTravelPointsBy(gtfsApiTokens)
                     .flatMap(exceptionHandlerService::handleExceptions)
+                    .filter(travelPoint -> (travelPoint.getPoint().getX() != WRONG_COORDINATE) && (travelPoint.getPoint().getY() != WRONG_COORDINATE))
                     .filter(distinctEquivalentTravelPoints())
                     .collectMap(travelPoint -> uuidService.createUUID(), travelPoint -> travelPoint)
                     .subscribe(travelPointRepositoryService::replaceAllTravelPoints);

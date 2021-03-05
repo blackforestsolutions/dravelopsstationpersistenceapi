@@ -50,6 +50,7 @@ class TravelPointApiServiceTest {
                 new CallStatus<>(getKarlsbaderStreetTravelPoint(), Status.SUCCESS, null),
                 new CallStatus<>(getTribergStationStreetTravelPoint(), Status.SUCCESS, null),
                 new CallStatus<>(getTribergStationStreetTravelPoint(), Status.SUCCESS, null),
+                new CallStatus<>(getWrongTravelPoint(), Status.SUCCESS, null),
                 new CallStatus<>(null, Status.FAILED, new Exception())
         ));
 
@@ -131,7 +132,7 @@ class TravelPointApiServiceTest {
         Awaitility.await()
                 .untilAsserted(() -> {
                     verify(gtfsApiService, times(1)).getAllTravelPointsBy(gtfsApiTokensArg.capture());
-                    verify(exceptionHandlerService, times(7)).handleExceptions(any(CallStatus.class));
+                    verify(exceptionHandlerService, times(8)).handleExceptions(any(CallStatus.class));
                     verify(uuidService, times(5)).createUUID();
                     verify(travelPointRepositoryService, times(1)).replaceAllTravelPoints(travelPointsArg.capture());
                     assertThat(gtfsApiTokensArg.getValue().get(0)).isEqualToComparingFieldByFieldRecursively(getRnvGtfsApiToken());
