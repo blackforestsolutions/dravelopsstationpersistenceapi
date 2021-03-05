@@ -48,7 +48,7 @@ public class TravelPointApiServiceImpl implements TravelPointApiService {
             List<ApiToken> gtfsApiTokens = getApiTokens();
             gtfsApiService.getAllTravelPointsBy(gtfsApiTokens)
                     .flatMap(exceptionHandlerService::handleExceptions)
-                    .filter(travelPoint -> (travelPoint.getPoint().getX() != WRONG_COORDINATE) && (travelPoint.getPoint().getY() != WRONG_COORDINATE))
+                    .filter(this::logAndFilerTravelPointsWithWrongCoordinates)
                     .filter(distinctEquivalentTravelPoints())
                     .collectMap(travelPoint -> uuidService.createUUID(), travelPoint -> travelPoint)
                     .subscribe(travelPointRepositoryService::replaceAllTravelPoints);
@@ -79,5 +79,13 @@ public class TravelPointApiServiceImpl implements TravelPointApiService {
                 .setGtfsUrl(apiToken.getGtfsUrl())
                 .setHeaders(Optional.ofNullable(apiToken.getHeaders()).orElse(new HashMap<>()))
                 .build();
+    }
+
+    private boolean logAndFilerTravelPointsWithWrongCoordinates(TravelPoint travelPoint) {
+        if (travelPoint.getPoint().getX() == WRONG_COORDINATE && travelPoint.getPoint().getY() == WRONG_COORDINATE) {
+            log.warn("No coordinates available for filtered TravelPoint: ".concat(travelPoint.getName()));
+            return false;
+        }
+        return true;
     }
 }
