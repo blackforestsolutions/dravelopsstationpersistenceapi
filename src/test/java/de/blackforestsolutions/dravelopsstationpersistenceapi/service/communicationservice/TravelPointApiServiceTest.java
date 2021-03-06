@@ -50,7 +50,7 @@ class TravelPointApiServiceTest {
                 new CallStatus<>(getKarlsbaderStreetTravelPoint(), Status.SUCCESS, null),
                 new CallStatus<>(getTribergStationStreetTravelPoint(), Status.SUCCESS, null),
                 new CallStatus<>(getTribergStationStreetTravelPoint(), Status.SUCCESS, null),
-                new CallStatus<>(getWrongTravelPoint(), Status.SUCCESS, null),
+                new CallStatus<>(getWrongCoordinateTravelPoint(), Status.SUCCESS, null),
                 new CallStatus<>(null, Status.FAILED, new Exception())
         ));
 
