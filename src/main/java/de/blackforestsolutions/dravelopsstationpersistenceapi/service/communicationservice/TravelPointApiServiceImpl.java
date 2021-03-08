@@ -14,6 +14,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -68,16 +69,17 @@ public class TravelPointApiServiceImpl implements TravelPointApiService {
     }
 
     private List<ApiToken> getApiTokens() {
-        return gtfsApiTokenConfiguration.getApitokens()
+        return gtfsApiTokenConfiguration.getApitokens().entrySet()
                 .stream()
                 .map(this::convertConfigTokenToApiToken)
                 .collect(Collectors.toList());
     }
 
-    private ApiToken convertConfigTokenToApiToken(GtfsApiTokenConfiguration.ApiToken apiToken) {
+    private ApiToken convertConfigTokenToApiToken(Map.Entry<String, GtfsApiTokenConfiguration.ApiToken> apiToken) {
         return new ApiToken.ApiTokenBuilder()
-                .setGtfsUrl(apiToken.getGtfsUrl())
-                .setHeaders(Optional.ofNullable(apiToken.getHeaders()).orElse(new HashMap<>()))
+                .setGtfsProvider(apiToken.getKey())
+                .setGtfsUrl(apiToken.getValue().getGtfsUrl())
+                .setHeaders(Optional.ofNullable(apiToken.getValue().getHeaders()).orElse(new HashMap<>()))
                 .build();
     }
 

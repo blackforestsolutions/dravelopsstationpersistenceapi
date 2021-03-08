@@ -215,6 +215,23 @@ class GtfsApiServiceTest {
     }
 
     @Test
+    void test_getAllTravelPointsBy_error_token_and_gtfsProvider_as_null_returns_failed_callStatus_with_nullPointerException() {
+        ApiToken.ApiTokenBuilder errorToken = new ApiToken.ApiTokenBuilder(getSbgGtfsApiToken());
+        errorToken.setGtfsProvider(null);
+        List<ApiToken> testData = List.of(errorToken.build());
+
+        Flux<CallStatus<TravelPoint>> result = classUnderTest.getAllTravelPointsBy(testData);
+
+        StepVerifier.create(result)
+                .assertNext(travelPoint -> {
+                    assertThat(travelPoint.getCalledObject()).isNull();
+                    assertThat(travelPoint.getStatus()).isEqualTo(Status.FAILED);
+                    assertThat(travelPoint.getThrowable()).isInstanceOf(NullPointerException.class);
+                })
+                .verifyComplete();
+    }
+
+    @Test
     void test_getAllTravelPointsBy_error_token_and_gtfsUrl_as_null_returns_failed_callStatus_with_nullPointerException() {
         ApiToken.ApiTokenBuilder errorToken = new ApiToken.ApiTokenBuilder(getSbgGtfsApiToken());
         errorToken.setGtfsUrl(null);

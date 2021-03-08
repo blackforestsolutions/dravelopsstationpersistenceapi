@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 
 @Setter
@@ -14,7 +13,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "gtfs")
 public class GtfsApiTokenConfiguration {
 
-    private List<ApiToken> apitokens;
+    private Map<String, ApiToken> apitokens;
 
     @Setter
     @Getter

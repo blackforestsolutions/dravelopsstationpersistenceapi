@@ -5,6 +5,7 @@ import de.blackforestsolutions.dravelopsstationpersistenceapi.configuration.Gtfs
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -18,15 +19,18 @@ public class TestUtils {
      */
     public static GtfsApiTokenConfiguration convertApiTokensToConfigToken(List<ApiToken> apiTokens) {
         GtfsApiTokenConfiguration gtfsApiTokenConfiguration = new GtfsApiTokenConfiguration();
-        gtfsApiTokenConfiguration.setApitokens(apiTokens.stream().map(TestUtils::convertApiTokenToConfigToken).collect(Collectors.toList()));
+        gtfsApiTokenConfiguration.setApitokens(apiTokens.stream()
+                .map(TestUtils::convertApiTokenToConfigToken)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+        );
         return gtfsApiTokenConfiguration;
     }
 
-    private static GtfsApiTokenConfiguration.ApiToken convertApiTokenToConfigToken(ApiToken apiToken) {
+    private static Map.Entry<String, GtfsApiTokenConfiguration.ApiToken> convertApiTokenToConfigToken(ApiToken apiToken) {
         GtfsApiTokenConfiguration.ApiToken configToken = new GtfsApiTokenConfiguration.ApiToken();
         configToken.setGtfsUrl(apiToken.getGtfsUrl());
         configToken.setHeaders(apiToken.getHeaders());
-        return configToken;
+        return Map.entry(apiToken.getGtfsProvider(), configToken);
     }
 
 }

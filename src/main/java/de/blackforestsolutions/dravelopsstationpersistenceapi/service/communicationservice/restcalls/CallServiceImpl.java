@@ -1,6 +1,5 @@
 package de.blackforestsolutions.dravelopsstationpersistenceapi.service.communicationservice.restcalls;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
@@ -19,7 +18,6 @@ import static de.blackforestsolutions.dravelopsstationpersistenceapi.configurati
 import static de.blackforestsolutions.dravelopsstationpersistenceapi.configuration.FileConfiguration.TMP_FILE_NAME_SUFFIX;
 
 @Service
-@Slf4j
 public class CallServiceImpl implements CallService {
 
     private final RestTemplate restTemplate;
@@ -30,7 +28,6 @@ public class CallServiceImpl implements CallService {
 
     @Override
     public File getFile(String url, HttpHeaders headers) {
-        log.info("Downloading file from: ".concat(url));
         return restTemplate.execute(
                 url,
                 HttpMethod.GET,
@@ -42,7 +39,6 @@ public class CallServiceImpl implements CallService {
     private File extractFile(ClientHttpResponse response) throws IOException {
         File tmp = File.createTempFile(TMP_FILE_NAME_PREFIX, TMP_FILE_NAME_SUFFIX);
         StreamUtils.copy(response.getBody(), new FileOutputStream(tmp));
-        log.info("File successfully downloaded.");
         return tmp;
     }
 
