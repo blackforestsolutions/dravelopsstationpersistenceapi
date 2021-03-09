@@ -2,6 +2,7 @@ package de.blackforestsolutions.dravelopsstationpersistenceapi.service.communica
 
 import de.blackforestsolutions.dravelopsdatamodel.*;
 import de.blackforestsolutions.dravelopsstationpersistenceapi.service.communicationservice.restcalls.CallService;
+import lombok.extern.slf4j.Slf4j;
 import org.onebusaway.gtfs.impl.GtfsDaoImpl;
 import org.onebusaway.gtfs.model.Stop;
 import org.onebusaway.gtfs.serialization.GtfsReader;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class GtfsApiServiceImpl implements GtfsApiService {
 
@@ -42,9 +44,14 @@ public class GtfsApiServiceImpl implements GtfsApiService {
      */
     private Flux<CallStatus<TravelPoint>> executeApiCall(ApiToken apiToken) {
         try {
+            Objects.requireNonNull(apiToken.getGtfsProvider(), "gtfsProvider is not allowed to be null");
             Objects.requireNonNull(apiToken.getGtfsUrl(), "gtfsUrl is not allowed to be null");
             Objects.requireNonNull(apiToken.getHeaders(), "headers is not allowed to be null");
+            log.info("Downloading file from ".concat(apiToken.getGtfsProvider()).concat("-TravelProvider with url: ").concat(apiToken.getGtfsUrl()));
             File gtfsZip = callService.getFile(apiToken.getGtfsUrl(), convertApiTokenHeadersMap(apiToken));
+            if (gtfsZip != null) {
+                log.info("File successfully downloaded.");
+            }
             return Flux.fromIterable(extractStopsFrom(gtfsZip))
                     .map(this::handleTravelPointMapping)
                     .onErrorResume(e -> Mono.just(new CallStatus<>(null, Status.FAILED, e)));
