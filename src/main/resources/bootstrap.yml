@@ -1,7 +1,5 @@
 spring:
   profiles:
-    active: bw,dev
+    active: sbg,dev
   application:
     name: stationpersistence
-server:
-  port: 8086
