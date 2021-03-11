@@ -26,11 +26,26 @@ public class TestUtils {
         return gtfsApiTokenConfiguration;
     }
 
+    public static List<ApiToken> convertConfigTokenToApiTokens(GtfsApiTokenConfiguration apiTokenConfiguration) {
+        return apiTokenConfiguration.getApitokens().entrySet()
+                .stream()
+                .map(TestUtils::convertConfigApiTokenToApiToken)
+                .collect(Collectors.toList());
+    }
+
     private static Map.Entry<String, GtfsApiTokenConfiguration.ApiToken> convertApiTokenToConfigToken(ApiToken apiToken) {
         GtfsApiTokenConfiguration.ApiToken configToken = new GtfsApiTokenConfiguration.ApiToken();
         configToken.setGtfsUrl(apiToken.getGtfsUrl());
         configToken.setHeaders(apiToken.getHeaders());
         return Map.entry(apiToken.getGtfsProvider(), configToken);
+    }
+
+    private static ApiToken convertConfigApiTokenToApiToken(Map.Entry<String, GtfsApiTokenConfiguration.ApiToken> apiToken) {
+        return new ApiToken.ApiTokenBuilder()
+                .setGtfsProvider(apiToken.getKey())
+                .setGtfsUrl(apiToken.getValue().getGtfsUrl())
+                .setHeaders(apiToken.getValue().getHeaders())
+                .build();
     }
 
 }
