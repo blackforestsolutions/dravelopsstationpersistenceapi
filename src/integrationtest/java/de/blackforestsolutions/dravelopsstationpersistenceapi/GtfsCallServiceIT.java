@@ -6,6 +6,7 @@ import de.blackforestsolutions.dravelopsstationpersistenceapi.service.communicat
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.File;
 import java.util.zip.ZipEntry;
@@ -16,6 +17,7 @@ import static de.blackforestsolutions.dravelopsstationpersistenceapi.testutil.Te
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class GtfsCallServiceIT {
 
     @Autowired
