@@ -11,7 +11,7 @@ public class GeocodingConfiguration {
 
     public static final int DEGREES_COORDINATE_SYSTEM = 4326;
 
-    @Value("${buffer.metres}")
+    @Value("${graphql.playground.tabs[6].bufferInMetres}")
     private int bufferInMetres;
 
     @Bean
