@@ -13,11 +13,14 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@RefreshScope
 @Service
 public class GeocodingServiceImpl implements GeocodingService {
 
@@ -26,17 +29,18 @@ public class GeocodingServiceImpl implements GeocodingService {
     private static final int NO_BUFFER_IN_METRES = 0;
     private static final int FIRST_INDEX = 0;
 
+    @Value("${graphql.playground.tabs[6].bufferInMetres}")
+    private int bufferInMetres;
+
     private final TravelPointRepositoryService travelPointRepositoryService;
     private final ExceptionHandlerService exceptionHandlerService;
     private final GeometryFactory geometryFactory;
-    private final int bufferInMetres;
 
     @Autowired
-    public GeocodingServiceImpl(TravelPointRepositoryService travelPointRepositoryService, ExceptionHandlerService exceptionHandlerService, GeometryFactory geometryFactory, int bufferInMetres) {
+    public GeocodingServiceImpl(TravelPointRepositoryService travelPointRepositoryService, ExceptionHandlerService exceptionHandlerService, GeometryFactory geometryFactory) {
         this.travelPointRepositoryService = travelPointRepositoryService;
         this.exceptionHandlerService = exceptionHandlerService;
         this.geometryFactory = geometryFactory;
-        this.bufferInMetres = bufferInMetres;
     }
 
     @Override

@@ -3,12 +3,14 @@ package de.blackforestsolutions.dravelopsstationpersistenceapi.configuration;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Setter
 @Getter
+@RefreshScope
 @Component
 @ConfigurationProperties(prefix = "gtfs")
 public class GtfsApiTokenConfiguration {

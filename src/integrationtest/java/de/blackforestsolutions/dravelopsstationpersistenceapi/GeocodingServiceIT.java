@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -41,6 +42,7 @@ class GeocodingServiceIT {
 
     @BeforeEach
     void init() {
+        ReflectionTestUtils.setField(geocodingService, "bufferInMetres", 0);
         IMap<UUID, TravelPoint> testData = hazelcastInstance.getMap(TRAVEL_POINT_MAP);
         testData.put(TEST_UUID_1, getTravelPointWithNoEmptyFieldsBy(new Point.PointBuilder(0.0d, 0.0d).build()));
         testData.put(TEST_UUID_2, getTravelPointWithNoEmptyFieldsBy(new Point.PointBuilder(0.0d, 10.0d).build()));

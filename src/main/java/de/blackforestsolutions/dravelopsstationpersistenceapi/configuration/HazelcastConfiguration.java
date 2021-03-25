@@ -7,6 +7,7 @@ import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
 import de.blackforestsolutions.dravelopsstationpersistenceapi.service.repositoryservice.projection.PointProjection;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Range;
 import org.springframework.data.geo.Distance;
@@ -16,6 +17,7 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 
+@RefreshScope
 @SpringBootConfiguration
 public class HazelcastConfiguration {
 
@@ -25,6 +27,7 @@ public class HazelcastConfiguration {
     @Value("${hazelcast.addresses}")
     private List<String> hazelcastAddresses;
 
+    @RefreshScope
     @Bean
     public ClientConfig config() {
         ClientConfig config = new ClientConfig();
