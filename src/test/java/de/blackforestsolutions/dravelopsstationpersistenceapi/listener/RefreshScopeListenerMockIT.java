@@ -28,7 +28,7 @@ class RefreshScopeListenerMockIT {
 
         refreshEndpoint.refresh();
 
-        // called first on startup and secondly on acutuator refresh
+        // called first on startup and secondly on actuator refresh
         verify(gtfsApiService, times(2)).getAllTravelPointsBy(anyList());
     }
 }
