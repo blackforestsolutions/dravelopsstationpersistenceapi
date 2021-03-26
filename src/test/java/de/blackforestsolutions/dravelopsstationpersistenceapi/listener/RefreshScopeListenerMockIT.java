@@ -1,6 +1,6 @@
 package de.blackforestsolutions.dravelopsstationpersistenceapi.listener;
 
-import de.blackforestsolutions.dravelopsstationpersistenceapi.service.communicationservice.TravelPointApiService;
+import de.blackforestsolutions.dravelopsstationpersistenceapi.service.communicationservice.GtfsApiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.endpoint.RefreshEndpoint;
 import org.springframework.test.annotation.DirtiesContext;
 
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -16,7 +17,7 @@ import static org.mockito.Mockito.verify;
 class RefreshScopeListenerMockIT {
 
     @MockBean
-    private TravelPointApiService travelPointApiService;
+    private GtfsApiService gtfsApiService;
 
     @Autowired
     private RefreshEndpoint refreshEndpoint;
@@ -27,6 +28,7 @@ class RefreshScopeListenerMockIT {
 
         refreshEndpoint.refresh();
 
-        verify(travelPointApiService, times(1)).updateTravelPoints();
+        // called first on startup and secondly on acutuator refresh
+        verify(gtfsApiService, times(2)).getAllTravelPointsBy(anyList());
     }
 }

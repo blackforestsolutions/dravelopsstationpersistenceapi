@@ -18,6 +18,6 @@ public class RefreshScopeListener implements ApplicationListener<RefreshScopeRef
 
     @Override
     public void onApplicationEvent(RefreshScopeRefreshedEvent event) {
-        travelPointApiService.updateTravelPoints();
+        travelPointApiService.materializeAfterRefresh();
     }
 }

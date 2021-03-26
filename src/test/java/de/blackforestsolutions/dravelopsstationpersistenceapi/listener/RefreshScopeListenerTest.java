@@ -19,6 +19,6 @@ class RefreshScopeListenerTest {
 
         classUnderTest.onApplicationEvent(testData);
 
-        verify(travelPointApiService, times(1)).updateTravelPoints();
+        verify(travelPointApiService, times(1)).materializeAfterRefresh();
     }
 }
