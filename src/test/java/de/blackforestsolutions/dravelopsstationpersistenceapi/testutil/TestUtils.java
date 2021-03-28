@@ -4,8 +4,10 @@ import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsstationpersistenceapi.configuration.GtfsApiTokenConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -40,12 +42,12 @@ public class TestUtils {
         return Map.entry(apiToken.getGtfsProvider(), configToken);
     }
 
-    private static ApiToken convertConfigApiTokenToApiToken(Map.Entry<String, GtfsApiTokenConfiguration.ApiToken> apiToken) {
-        return new ApiToken.ApiTokenBuilder()
-                .setGtfsProvider(apiToken.getKey())
-                .setGtfsUrl(apiToken.getValue().getGtfsUrl())
-                .setHeaders(apiToken.getValue().getHeaders())
-                .build();
+    private static ApiToken convertConfigApiTokenToApiToken(Map.Entry<String, GtfsApiTokenConfiguration.ApiToken> configToken) {
+        ApiToken apiToken = new ApiToken();
+        apiToken.setGtfsProvider(configToken.getKey());
+        apiToken.setGtfsUrl(configToken.getValue().getGtfsUrl());
+        apiToken.setHeaders(Optional.ofNullable(configToken.getValue().getHeaders()).orElse(new HashMap<>()));
+        return apiToken;
     }
 
 }

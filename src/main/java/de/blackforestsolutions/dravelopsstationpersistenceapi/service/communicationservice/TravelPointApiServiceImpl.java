@@ -8,6 +8,7 @@ import de.blackforestsolutions.dravelopsstationpersistenceapi.service.repository
 import de.blackforestsolutions.dravelopsstationpersistenceapi.service.supportservice.UuidService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import static de.blackforestsolutions.dravelopsstationpersistenceapi.utils.TravelPointUtils.distinctEquivalentTravelPoints;
 
 @Slf4j
+@RefreshScope
 @Service
 public class TravelPointApiServiceImpl implements TravelPointApiService {
 
@@ -75,12 +77,12 @@ public class TravelPointApiServiceImpl implements TravelPointApiService {
                 .collect(Collectors.toList());
     }
 
-    private ApiToken convertConfigTokenToApiToken(Map.Entry<String, GtfsApiTokenConfiguration.ApiToken> apiToken) {
-        return new ApiToken.ApiTokenBuilder()
-                .setGtfsProvider(apiToken.getKey())
-                .setGtfsUrl(apiToken.getValue().getGtfsUrl())
-                .setHeaders(Optional.ofNullable(apiToken.getValue().getHeaders()).orElse(new HashMap<>()))
-                .build();
+    private ApiToken convertConfigTokenToApiToken(Map.Entry<String, GtfsApiTokenConfiguration.ApiToken> configToken) {
+        ApiToken apiToken = new ApiToken();
+        apiToken.setGtfsProvider(configToken.getKey());
+        apiToken.setGtfsUrl(configToken.getValue().getGtfsUrl());
+        apiToken.setHeaders(Optional.ofNullable(configToken.getValue().getHeaders()).orElse(new HashMap<>()));
+        return apiToken;
     }
 
     private boolean logAndFilerTravelPointsWithWrongCoordinates(TravelPoint travelPoint) {

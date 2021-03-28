@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -30,10 +31,12 @@ class GeocodingServiceTest {
     private final ExceptionHandlerService exceptionHandlerService = spy(ExceptionHandlerServiceImpl.class);
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), DEGREES_COORDINATE_SYSTEM);
 
-    private GeocodingService classUnderTest;
+    private final GeocodingService classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory);
 
     @BeforeEach
     void init() {
+        ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 0);
+
         when(travelPointRepositoryService.getAllTravelPointCoordinates()).thenReturn(List.of(
                 new Point.PointBuilder(0.0d, 0.0d).build(),
                 new Point.PointBuilder(0.0d, 10.0d).build(),
@@ -44,21 +47,19 @@ class GeocodingServiceTest {
 
     @Test
     void test_getPolygonFromAllStops_returns_correct_polygon_with_no_buffer() {
-        int bufferInMetres = 0;
-        classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory, bufferInMetres);
 
         Mono<Polygon> result = classUnderTest.getPolygonFromAllStops();
 
         StepVerifier.create(result)
                 .assertNext(polygon -> assertThat(polygon.getExteriorRing().getCoordinates()).extracting(
-                            Coordinate::getX,
-                            Coordinate::getY
+                        Coordinate::getX,
+                        Coordinate::getY
                         ).containsExactly(
-                            Tuple.tuple(0.0d, 0.0d),
-                            Tuple.tuple(0.0d, 10.0d),
-                            Tuple.tuple(10.0d, 10.0d),
-                            Tuple.tuple(10.0d, 0.0d),
-                            Tuple.tuple(0.0d, 0.0d)
+                        Tuple.tuple(0.0d, 0.0d),
+                        Tuple.tuple(0.0d, 10.0d),
+                        Tuple.tuple(10.0d, 10.0d),
+                        Tuple.tuple(10.0d, 0.0d),
+                        Tuple.tuple(0.0d, 0.0d)
                         )
                 )
                 .verifyComplete();
@@ -66,8 +67,7 @@ class GeocodingServiceTest {
 
     @Test
     void test_getPolygonFromAllStops_returns_correct_polygon_with_buffer() {
-        int bufferInMetres = 110574;
-        classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory, bufferInMetres);
+        ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 110574);
 
         Mono<Polygon> result = classUnderTest.getPolygonFromAllStops();
 
@@ -120,8 +120,6 @@ class GeocodingServiceTest {
 
     @Test
     void test_getPolygonFromAllStops_is_executed_correctly() {
-        int bufferInMetres = 0;
-        classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory, bufferInMetres);
 
         classUnderTest.getPolygonFromAllStops().block();
 
@@ -130,8 +128,6 @@ class GeocodingServiceTest {
 
     @Test
     void test_getPolygonFromAllStops_returns_no_polygon_when_exception_is_thrown() {
-        int bufferInMetres = 0;
-        classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory, bufferInMetres);
         when(travelPointRepositoryService.getAllTravelPointCoordinates()).thenThrow(new HazelcastException());
 
         Mono<Polygon> result = classUnderTest.getPolygonFromAllStops();
@@ -143,8 +139,6 @@ class GeocodingServiceTest {
 
     @Test
     void test_getBoxFromAllStops_returns_correct_box_with_no_buffer() {
-        int bufferInMetres = 0;
-        classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory, bufferInMetres);
 
         Mono<Box> result = classUnderTest.getBoxFromAllStops();
 
@@ -155,8 +149,7 @@ class GeocodingServiceTest {
 
     @Test
     void test_getBoxFromAllStops_returns_correct_box_with_buffer() {
-        int bufferInMetres = 110574;
-        classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory, bufferInMetres);
+        ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 110574);
 
         Mono<Box> result = classUnderTest.getBoxFromAllStops();
 
@@ -170,8 +163,6 @@ class GeocodingServiceTest {
 
     @Test
     void test_getBoxFromAllStops_is_executed_correctly() {
-        int bufferInMetres = 0;
-        classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory, bufferInMetres);
 
         classUnderTest.getBoxFromAllStops().block();
 
@@ -180,8 +171,6 @@ class GeocodingServiceTest {
 
     @Test
     void test_getBoxFromAllStops_returns_no_box_when_exception_is_thrown() {
-        int bufferInMetres = 0;
-        classUnderTest = new GeocodingServiceImpl(travelPointRepositoryService, exceptionHandlerService, geometryFactory, bufferInMetres);
         when(travelPointRepositoryService.getAllTravelPointCoordinates()).thenThrow(new HazelcastException());
 
         Mono<Box> result = classUnderTest.getBoxFromAllStops();
