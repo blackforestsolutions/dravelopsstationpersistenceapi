@@ -29,7 +29,7 @@ public class GeocodingServiceImpl implements GeocodingService {
     private static final int NO_BUFFER_IN_METRES = 0;
     private static final int FIRST_INDEX = 0;
 
-    @Value("${graphql.playground.tabs[6].bufferInMetres}")
+    @Value("${graphql.playground.tabs.OPERATING_AREA.bufferInMetres}")
     private int bufferInMetres;
 
     private final TravelPointRepositoryService travelPointRepositoryService;
