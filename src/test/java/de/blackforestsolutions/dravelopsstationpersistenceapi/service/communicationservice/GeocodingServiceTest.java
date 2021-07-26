@@ -7,22 +7,27 @@ import de.blackforestsolutions.dravelopsstationpersistenceapi.exceptionhandling.
 import de.blackforestsolutions.dravelopsstationpersistenceapi.exceptionhandling.ExceptionHandlerServiceImpl;
 import de.blackforestsolutions.dravelopsstationpersistenceapi.service.repositoryservice.TravelPointRepositoryService;
 import de.blackforestsolutions.dravelopsstationpersistenceapi.service.repositoryservice.TravelPointRepositoryServiceImpl;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.mockito.InOrder;
 import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.BoxObjectMother.getBoxWithNoEmptyFields;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.BoxObjectMother.*;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.PolygonObjectMother.getHvvOperatingArea;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.PolygonObjectMother.getSbgOperatingArea;
 import static de.blackforestsolutions.dravelopsstationpersistenceapi.configuration.GeocodingConfiguration.DEGREES_COORDINATE_SYSTEM;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.*;
 
 class GeocodingServiceTest {
@@ -36,86 +41,95 @@ class GeocodingServiceTest {
     @BeforeEach
     void init() {
         ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 0);
-
-        when(travelPointRepositoryService.getAllTravelPointCoordinates()).thenReturn(List.of(
-                new Point.PointBuilder(0.0d, 0.0d).build(),
-                new Point.PointBuilder(0.0d, 10.0d).build(),
-                new Point.PointBuilder(10.0d, 10.0d).build(),
-                new Point.PointBuilder(10.0d, 0.0d).build()
-        ));
+        List<Point> sbgTravelPoints = Arrays.stream(getSbgOperatingArea().getCoordinates())
+                .map(coordinate -> new Point.PointBuilder(coordinate.x, coordinate.y).build())
+                .collect(Collectors.toList());
+        when(travelPointRepositoryService.getAllTravelPointCoordinates()).thenReturn(sbgTravelPoints);
     }
 
     @Test
-    void test_getPolygonFromAllStops_returns_correct_polygon_with_no_buffer() {
+    void test_getPolygonFromAllStops_returns_correct_polygon_for_sbg_with_no_buffer() {
 
         Mono<Polygon> result = classUnderTest.getPolygonFromAllStops();
 
         StepVerifier.create(result)
-                .assertNext(polygon -> assertThat(polygon.getExteriorRing().getCoordinates()).extracting(
-                        Coordinate::getX,
-                        Coordinate::getY
-                        ).containsExactly(
-                        Tuple.tuple(0.0d, 0.0d),
-                        Tuple.tuple(0.0d, 10.0d),
-                        Tuple.tuple(10.0d, 10.0d),
-                        Tuple.tuple(10.0d, 0.0d),
-                        Tuple.tuple(0.0d, 0.0d)
-                        )
-                )
+                .assertNext(polygon -> assertArrayEquals(getSbgOperatingArea().getCoordinates(), polygon.getCoordinates()))
                 .verifyComplete();
     }
 
     @Test
-    void test_getPolygonFromAllStops_returns_correct_polygon_with_buffer() {
-        ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 110574);
+    void test_getPolygonFromAllStops_returns_correct_polygon_for_hvv_with_no_buffer() {
+        List<Point> hvvTravelPoints = Arrays.stream(getHvvOperatingArea().getCoordinates())
+                .map(coordinate -> new Point.PointBuilder(coordinate.x, coordinate.y).build())
+                .collect(Collectors.toList());
+        when(travelPointRepositoryService.getAllTravelPointCoordinates()).thenReturn(hvvTravelPoints);
 
         Mono<Polygon> result = classUnderTest.getPolygonFromAllStops();
 
         StepVerifier.create(result)
-                .assertNext(polygon -> {
-                    assertThat(polygon.getExteriorRing().getCoordinates()).extracting(
-                            Coordinate::getX,
-                            Coordinate::getY
-                    ).containsExactly(
-                            Tuple.tuple(-0.004561040111617007d, -0.9927228027547199d),
-                            Tuple.tuple(10.003006304704753d, -1.0079815384575677d),
-                            Tuple.tuple(10.195521161247413, -0.9887845431993816),
-                            Tuple.tuple(10.380746300716234d, -0.9324462632772917d),
-                            Tuple.tuple(10.551713081619118d, -0.8410262046110369d),
-                            Tuple.tuple(10.701980051585126d, -0.7179193808714132d),
-                            Tuple.tuple(10.825879583514137d, -0.5677351784785197d),
-                            Tuple.tuple(10.918736427202049d, -0.3961264990770741d),
-                            Tuple.tuple(10.977048887538135d, -0.20957482119706317d),
-                            Tuple.tuple(10.998624606719192d, -0.015139433217966125d),
-                            Tuple.tuple(10.974948808704989d, 10.017253282214465d),
-                            Tuple.tuple(10.952348973897964d, 10.209823587881292d),
-                            Tuple.tuple(10.892914867924983d, 10.394004375643283d),
-                            Tuple.tuple(10.799037391715066d, 10.562666852854813d),
-                            Tuple.tuple(10.674424876866413d, 10.70932921951735d),
-                            Tuple.tuple(10.523946381451989d, 10.828401494569725d),
-                            Tuple.tuple(10.353434469228787d, 10.915388657455129d),
-                            Tuple.tuple(10.16945677621713d, 10.96704656524484d),
-                            Tuple.tuple(9.97906578230911d, 10.98148784595978d),
-                            Tuple.tuple(0.019504159753616208d, 10.965917683217809d),
-                            Tuple.tuple(-0.17260281503443514d, 10.950810835677025d),
-                            Tuple.tuple(-0.3579896837000286d, 10.89844632609598d),
-                            Tuple.tuple(-0.529428097519545d, 10.810836074869599d),
-                            Tuple.tuple(-0.6802125543431138d, 10.691354053803883d),
-                            Tuple.tuple(-0.8044164396135451d, 10.54461711013526d),
-                            Tuple.tuple(-0.8971234837933111d, 10.376318774535818d),
-                            Tuple.tuple(-0.9546256972397593d, 10.193019686403927d),
-                            Tuple.tuple(-0.9745790186127664d, 10.001900314255447d),
-                            Tuple.tuple(-0.9990162543063537d, 4.5345524837400405E-4d),
-                            Tuple.tuple(-0.9801000893667516d, -0.19264734147793272d),
-                            Tuple.tuple(-0.9237080392539165d, -0.3784268594421085d),
-                            Tuple.tuple(-0.83198290614357d, -0.5497704402688295d),
-                            Tuple.tuple(-0.7084244329303078d, -0.7001140548978875d),
-                            Tuple.tuple(-0.5577551412829409d, -0.8236979089108103d),
-                            Tuple.tuple(-0.3857385916245818d, -0.9157881347571085d),
-                            Tuple.tuple(-0.1989575595661542d, -0.97285809985723d),
-                            Tuple.tuple(-0.004561040111617007d, -0.9927228027547199d)
-                    );
-                });
+                .assertNext(polygon -> assertArrayEquals(getHvvOperatingArea().getCoordinates(), polygon.getCoordinates()))
+                .verifyComplete();
+    }
+
+    @Test
+    void test_getPolygonFromAllStops_returns_correct_polygon_for_sbg_with_buffer() {
+        ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 5000);
+
+        Mono<Polygon> result = classUnderTest.getPolygonFromAllStops();
+
+        StepVerifier.create(result)
+                .assertNext(polygon -> assertArrayEquals(new Coordinate[]{
+                        new Coordinate(7.703722118719157d, 47.49304086044343d),
+                        new Coordinate(7.687654284993504d, 47.49365142153711d),
+                        new Coordinate(7.672274095722977d, 47.49686288275248d),
+                        new Coordinate(7.58043549134783d, 47.524627955498296d),
+                        new Coordinate(7.568603044324274d, 47.52923774328677d),
+                        new Coordinate(7.558409631761535d, 47.53538763954726d),
+                        new Coordinate(7.550285669706272d, 47.54281833228403d),
+                        new Coordinate(7.544574744352069d, 47.55121639258796d),
+                        new Coordinate(7.286095727383401d, 48.059068437681695d),
+                        new Coordinate(7.282766462935075d, 48.0692294695766d),
+                        new Coordinate(7.2823852215689735d, 48.07176821224452d),
+                        new Coordinate(7.282529227492065d, 48.081649675616035d),
+                        new Coordinate(7.28589080808796d, 48.09127149766692d),
+                        new Coordinate(7.292309333103289d, 48.100168941798024d),
+                        new Coordinate(7.295756785579784d, 48.10384960498495d),
+                        new Coordinate(7.3028748922270905d, 48.1101434449278d),
+                        new Coordinate(7.311528446182899d, 48.115506051406356d),
+                        new Coordinate(7.333318086204697d, 48.12679584542728d),
+                        new Coordinate(7.333422871568092d, 48.12685000534641d),
+                        new Coordinate(7.681532960494016d, 48.30526789647233d),
+                        new Coordinate(7.691315284676028d, 48.30941296861108d),
+                        new Coordinate(7.735204783793189d, 48.32463394620912d),
+                        new Coordinate(7.744392627819402d, 48.32726037635772d),
+                        new Coordinate(7.754062406753369d, 48.32895156146999d),
+                        new Coordinate(8.481146751346214d, 48.41586484266177d),
+                        new Coordinate(8.493195974554565d, 48.416533095914474d),
+                        new Coordinate(8.505231024659745d, 48.41575991997037d),
+                        new Coordinate(8.516865578921243d, 48.413570130229814d),
+                        new Coordinate(8.875229959168276d, 48.32162786921763d),
+                        new Coordinate(8.890180569038828d, 48.31622740553134d),
+                        new Coordinate(8.90739854220849d, 48.30797657816089d),
+                        new Coordinate(8.91674562363526d, 48.3025616237448d),
+                        new Coordinate(8.924449316523065d, 48.29609730777297d),
+                        new Coordinate(8.930250192462829d, 48.2888018754048d),
+                        new Coordinate(8.933953325344504d, 48.28092153429855d),
+                        new Coordinate(9.092461586392343d, 47.78439763232519d),
+                        new Coordinate(9.093920777737463d, 47.775612949297994d),
+                        new Coordinate(9.092803475323782d, 47.76680551539693d),
+                        new Coordinate(9.081344994195398d, 47.72519400935012d),
+                        new Coordinate(9.077815873848103d, 47.71689965122084d),
+                        new Coordinate(9.072006370818206d, 47.7092123250754d),
+                        new Coordinate(9.064130936839682d, 47.702414551450836d),
+                        new Coordinate(9.05447962313311d, 47.696756057268416d),
+                        new Coordinate(8.894238405307307d, 47.619439671921235d),
+                        new Coordinate(8.884949079898236d, 47.61567644832413d),
+                        new Coordinate(8.874881074970743d, 47.61298104353584d),
+                        new Coordinate(8.453021254254873d, 47.52519411090938d),
+                        new Coordinate(8.437031927564068d, 47.52324004301968d),
+                        new Coordinate(7.703722118719157d, 47.49304086044343d)
+                }, polygon.getCoordinates()))
+                .verifyComplete();
     }
 
     @Test
@@ -123,7 +137,10 @@ class GeocodingServiceTest {
 
         classUnderTest.getPolygonFromAllStops().block();
 
-        verify(travelPointRepositoryService, times(1)).getAllTravelPointCoordinates();
+        InOrder inOrder = inOrder(travelPointRepositoryService, exceptionHandlerService);
+        inOrder.verify(travelPointRepositoryService, times(1)).getAllTravelPointCoordinates();
+        inOrder.verify(exceptionHandlerService, times(0)).handleException(any(Throwable.class));
+        inOrder.verifyNoMoreInteractions();
     }
 
     @Test
@@ -135,38 +152,74 @@ class GeocodingServiceTest {
         StepVerifier.create(result)
                 .expectNextCount(0L)
                 .verifyComplete();
+        verify(exceptionHandlerService, times(1)).handleException(any(Throwable.class));
     }
 
     @Test
-    void test_getBoxFromAllStops_returns_correct_box_with_no_buffer() {
+    void test_getBoxFromAllStops_returns_correct_box_for_sbg_with_no_buffer() {
 
         Mono<Box> result = classUnderTest.getBoxFromAllStops();
 
         StepVerifier.create(result)
-                .assertNext(box -> assertThat(box).isEqualToComparingFieldByFieldRecursively(getBoxWithNoEmptyFields()))
+                .assertNext(box -> assertThat(box).isEqualToComparingFieldByFieldRecursively(getSbgBox()))
                 .verifyComplete();
     }
 
     @Test
-    void test_getBoxFromAllStops_returns_correct_box_with_buffer() {
-        ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 110574);
+    void test_getBoxFromAllStops_returns_correct_box_for_hvv_with_no_buffer() {
+        List<Point> hvvTravelPoints = Arrays.stream(getHvvOperatingArea().getCoordinates())
+                .map(coordinate -> new Point.PointBuilder(coordinate.x, coordinate.y).build())
+                .collect(Collectors.toList());
+        when(travelPointRepositoryService.getAllTravelPointCoordinates()).thenReturn(hvvTravelPoints);
+
+        Mono<Box> result = classUnderTest.getBoxFromAllStops();
+
+        StepVerifier.create(result)
+                .assertNext(box -> assertThat(box).isEqualToComparingFieldByFieldRecursively(getHvvBox()))
+                .verifyComplete();
+    }
+
+    @Test
+    void test_getBoxFromAllStops_returns_correct_box_for_sbg_with_buffer() {
+        ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 5000);
 
         Mono<Box> result = classUnderTest.getBoxFromAllStops();
 
         StepVerifier.create(result)
                 .assertNext(box -> {
-                    assertThat(box.getTopLeft()).isEqualToComparingFieldByField(new Point.PointBuilder(-0.9990162543063537d, 10.98148784595978d).build());
-                    assertThat(box.getBottomRight()).isEqualToComparingFieldByField(new Point.PointBuilder(10.998624606719192d, -1.0079815384575677d).build());
+                    assertThat(box.getTopLeft()).isEqualTo(new Point.PointBuilder(7.2823852215689735d, 48.416533095914474d).build());
+                    assertThat(box.getBottomRight()).isEqualTo(new Point.PointBuilder(9.093920777737463d, 47.49304086044343d).build());
                 })
                 .verifyComplete();
     }
 
     @Test
-    void test_getBoxFromAllStops_is_executed_correctly() {
+    void test_getBoxFromAllStops_returns_correct_box_for_hvv_with_buffer() {
+        ReflectionTestUtils.setField(classUnderTest, "bufferInMetres", 10000);
+        List<Point> hvvTravelPoints = Arrays.stream(getHvvOperatingArea().getCoordinates())
+                .map(coordinate -> new Point.PointBuilder(coordinate.x, coordinate.y).build())
+                .collect(Collectors.toList());
+        when(travelPointRepositoryService.getAllTravelPointCoordinates()).thenReturn(hvvTravelPoints);
+
+        Mono<Box> result = classUnderTest.getBoxFromAllStops();
+
+        StepVerifier.create(result)
+                .assertNext(box -> {
+                    assertThat(box.getTopLeft()).isEqualTo(new Point.PointBuilder(8.1552482380657d, 54.99670479445762d).build());
+                    assertThat(box.getBottomRight()).isEqualTo(new Point.PointBuilder(12.283577163272605d, 51.44697030952146d).build());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void test_getBoxFromAllStops_is_executed_correctly_with_no_buffer() {
 
         classUnderTest.getBoxFromAllStops().block();
 
-        verify(travelPointRepositoryService, times(1)).getAllTravelPointCoordinates();
+        InOrder inOrder = inOrder(travelPointRepositoryService, exceptionHandlerService);
+        inOrder.verify(travelPointRepositoryService, times(1)).getAllTravelPointCoordinates();
+        inOrder.verify(exceptionHandlerService, times(0)).handleException(any(Throwable.class));
+        inOrder.verifyNoMoreInteractions();
     }
 
     @Test
@@ -178,6 +231,7 @@ class GeocodingServiceTest {
         StepVerifier.create(result)
                 .expectNextCount(0L)
                 .verifyComplete();
+        verify(exceptionHandlerService, times(1)).handleException(any(Throwable.class));
     }
 
 }
