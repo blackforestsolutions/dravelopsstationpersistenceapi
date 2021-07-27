@@ -6,6 +6,7 @@ import de.blackforestsolutions.dravelopsstationpersistenceapi.exceptionhandling.
 import de.blackforestsolutions.dravelopsstationpersistenceapi.service.repositoryservice.TravelPointRepositoryService;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.algorithm.ConvexHull;
 import org.locationtech.jts.geom.*;
 import org.opengis.referencing.FactoryException;
@@ -24,8 +25,7 @@ import java.util.List;
 @Service
 public class GeocodingServiceImpl implements GeocodingService {
 
-    private static final String DEGREES_COORDINATE_SYSTEM = "EPSG:4326";
-    private static final String METRES_COORDINATE_SYSTEM = "EPSG:32630";
+    private static final String METRES_COORDINATE_SYSTEM = "AUTO:42001";
     private static final int NO_BUFFER_IN_METRES = 0;
     private static final int FIRST_INDEX = 0;
 
@@ -110,19 +110,33 @@ public class GeocodingServiceImpl implements GeocodingService {
                 .toArray(org.locationtech.jts.geom.Point[]::new);
     }
 
+    /**
+     * https://stackoverflow.com/questions/36455020/geotools-bounding-box-for-a-buffer-in-wgs84
+     * @param sourcePolygon surrounding stations
+     * @return buffered polygon
+     * @throws FactoryException when factory for transform coordinate systems is not available
+     * @throws TransformException when transformation between both coordinate systems is not possible
+     */
     private Geometry bufferPolygon(Geometry sourcePolygon) throws FactoryException, TransformException {
         if (bufferInMetres == NO_BUFFER_IN_METRES) {
             return sourcePolygon;
         }
-        CoordinateReferenceSystem degreesCRS = CRS.decode(DEGREES_COORDINATE_SYSTEM);
-        CoordinateReferenceSystem metresCRS = CRS.decode(METRES_COORDINATE_SYSTEM);
+        String completeCrsId = buildMetresCoordinateSystemWith(sourcePolygon);
+        CoordinateReferenceSystem metresCRS = CRS.decode(completeCrsId);
 
-        MathTransform degreesToMetres = CRS.findMathTransform(degreesCRS, metresCRS);
-        MathTransform metresToDegrees = CRS.findMathTransform(metresCRS, degreesCRS);
+        MathTransform degreesToMetres = CRS.findMathTransform(DefaultGeographicCRS.WGS84, metresCRS);
+        MathTransform metresToDegrees = CRS.findMathTransform(metresCRS, DefaultGeographicCRS.WGS84);
 
         Geometry bufferedPolygon = JTS.transform(sourcePolygon, degreesToMetres).buffer(bufferInMetres);
         return JTS.transform(bufferedPolygon, metresToDegrees);
     }
 
+    private String buildMetresCoordinateSystemWith(Geometry sourcePolygon) {
+        return METRES_COORDINATE_SYSTEM
+                .concat(",")
+                .concat(String.valueOf(sourcePolygon.getCentroid().getCoordinate().x))
+                .concat(",")
+                .concat(String.valueOf(sourcePolygon.getCentroid().getCoordinate().y));
+    }
 
 }
