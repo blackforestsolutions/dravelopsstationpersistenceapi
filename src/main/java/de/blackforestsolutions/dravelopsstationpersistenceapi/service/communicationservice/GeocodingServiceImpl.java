@@ -73,36 +73,6 @@ public class GeocodingServiceImpl implements GeocodingService {
         return (Polygon) bufferPolygon(polygon);
     }
 
-    private Box convertPolygonToBox(Polygon polygon) {
-        double leftTopLat = polygon.getExteriorRing().getCoordinateN(FIRST_INDEX).getY();
-        double leftTopLon = polygon.getExteriorRing().getCoordinateN(FIRST_INDEX).getX();
-        double rightBottomLat = polygon.getExteriorRing().getCoordinateN(FIRST_INDEX).getY();
-        double rightBottomLon = polygon.getExteriorRing().getCoordinateN(FIRST_INDEX).getX();
-
-        for (Coordinate coordinate : polygon.getExteriorRing().getCoordinates()) {
-            if (coordinate.getY() > leftTopLat) {
-                leftTopLat = coordinate.getY();
-            }
-            if (coordinate.getY() < rightBottomLat) {
-                rightBottomLat = coordinate.getY();
-            }
-            if (coordinate.getX() < leftTopLon) {
-                leftTopLon = coordinate.getX();
-            }
-            if (coordinate.getX() > rightBottomLon) {
-                rightBottomLon = coordinate.getX();
-            }
-        }
-
-        return convertToBox(leftTopLat, leftTopLon, rightBottomLat, rightBottomLon);
-    }
-
-    private Box convertToBox(double leftTopLat, double leftTopLon, double rightBottomLat, double rightBottomLon) {
-        Point leftTop = new Point.PointBuilder(leftTopLon, leftTopLat).build();
-        Point rightBottom = new Point.PointBuilder(rightBottomLon, rightBottomLat).build();
-        return new Box.BoxBuilder(leftTop, rightBottom).build();
-    }
-
     private Geometry[] convertPointsToGeometries(List<Point> points) {
         return points.stream()
                 .map(point -> new Coordinate(point.getX(), point.getY()))
@@ -137,6 +107,36 @@ public class GeocodingServiceImpl implements GeocodingService {
                 .concat(String.valueOf(sourcePolygon.getCentroid().getCoordinate().x))
                 .concat(",")
                 .concat(String.valueOf(sourcePolygon.getCentroid().getCoordinate().y));
+    }
+
+    private Box convertPolygonToBox(Polygon polygon) {
+        double leftTopLat = polygon.getExteriorRing().getCoordinateN(FIRST_INDEX).getY();
+        double leftTopLon = polygon.getExteriorRing().getCoordinateN(FIRST_INDEX).getX();
+        double rightBottomLat = polygon.getExteriorRing().getCoordinateN(FIRST_INDEX).getY();
+        double rightBottomLon = polygon.getExteriorRing().getCoordinateN(FIRST_INDEX).getX();
+
+        for (Coordinate coordinate : polygon.getExteriorRing().getCoordinates()) {
+            if (coordinate.getY() > leftTopLat) {
+                leftTopLat = coordinate.getY();
+            }
+            if (coordinate.getY() < rightBottomLat) {
+                rightBottomLat = coordinate.getY();
+            }
+            if (coordinate.getX() < leftTopLon) {
+                leftTopLon = coordinate.getX();
+            }
+            if (coordinate.getX() > rightBottomLon) {
+                rightBottomLon = coordinate.getX();
+            }
+        }
+
+        return convertToBox(leftTopLat, leftTopLon, rightBottomLat, rightBottomLon);
+    }
+
+    private Box convertToBox(double leftTopLat, double leftTopLon, double rightBottomLat, double rightBottomLon) {
+        Point leftTop = new Point.PointBuilder(leftTopLon, leftTopLat).build();
+        Point rightBottom = new Point.PointBuilder(rightBottomLon, rightBottomLat).build();
+        return new Box.BoxBuilder(leftTop, rightBottom).build();
     }
 
 }
