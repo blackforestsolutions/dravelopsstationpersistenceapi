@@ -16,6 +16,10 @@
 
     <repositories>
         <repository>
+            <id>github-public</id>
+            <url>https://public:&#103;hp_wjYaN0DxKVleUyw0PEYl26QvGTOWrZ2CXRhf@maven.pkg.github.com/blackforestsolutions/*</url>
+        </repository>
+        <repository>
             <id>public.onebusaway.org</id>
             <url>https://repo.camsys-apps.com/releases/</url>
         </repository>
